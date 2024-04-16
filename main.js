@@ -104,7 +104,6 @@ fs.readFile(configFilePath, "utf8", (err, data) => {
   //we only work if the device id is present//
   if (deviceID) {
     console.log("Device ID:", deviceID);
-    console.log("Connecting to ZIMRA SERVER...");
 
     //start
 
@@ -117,6 +116,8 @@ fs.readFile(configFilePath, "utf8", (err, data) => {
 
     const getConfigUrl = `${serverURL}/Device/v1/${deviceID}/GetStatus`;
     console.log(getConfigUrl);
+    console.log("Connecting to ZIMRA SERVER...");
+
 
     // Read the .crt and .key files
 
