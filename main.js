@@ -3,7 +3,7 @@ const path = require("path");
 const os = require("os");
 const readline = require("readline");
 const https = require("https");
-const axios = require("axios");
+const request = require("request")
 
 
 
@@ -21,6 +21,12 @@ const drives = os.platform() === "win32" ? getWindowsDrives() : getUnixDrives();
 let targetDrive = null;
 let configFilePath = null;
 let certificateFolderPath=null;
+
+// Create an instance of axios with the agent
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 for (const drive of drives) {
   const driveRoot = path.join(drive, path.sep);
 
@@ -56,7 +62,9 @@ if (!targetDrive) {
     `Drive with '${certificateFolderName}' folder and '${configFileName}' file not found.`
   );
   console.log("Please insert the Revmax Device ");
-  console.log("Close the program and then try again.")
+  rl.question('Press Enter to exit and then try again...', () => {
+    rl.close();
+  });
   return;
 }
 
@@ -87,9 +95,9 @@ fs.readFile(configFilePath, "utf8", (err, data) => {
   //we only work if the device id is present//
   if (deviceID) {
     console.log("Device ID:", deviceID);
+    console.log("Connecting to ZIMRA PRODUCTION SERVER...");
+
 //start
-console.log(certificateFolderPath)
-console.log(configFilePath)
 
 const certificatePath = path.join( certificateFolderPath , "cert.crt");
 const privateKeyPath = path.join(certificateFolderPath , "key.key");
@@ -106,25 +114,33 @@ const agentOptions = {
 };
 const agent = new https.Agent(agentOptions);
 
-// Create an instance of axios with the agent
-const axiosInstance = axios.create({
-  httpsAgent: agent,
-});
 
-// Send a request using axios
-axiosInstance
-  .get(`https://fdmsapitest.zimra.co.zw/Device/v1/${deviceID}/GetStatus`, {
-    headers: {
-      DeviceModelName: "Revmax",
-      DeviceModelVersion: "v1",
-    },
-  })
-  .then((response) => {
-    const data = response.data;
+//new way tosend the request
+const requestOptions = {
+  url: `https://fdmsapi.zimra.co.zw/Device/v1/${deviceID}/GetStatus`,
+  method: 'GET',
+  agent: agent,
+  headers: {
+    'DeviceModelName': 'Revmax', // Example header
+    'DeviceModelVersion': 'v1' // Example header
+    // Add any additional headers you require
+  }
+};
+
+request(requestOptions, (error, response, body) => {
+  if (error) {
+ // console.error(error);
+  console.log("Failed to connect to the ZIMRA Production server");
+  rl.question('Press Enter to exit and try again...', () => {
+    rl.close();
+  });
+  } else {
+    const data = JSON.parse(body);
     const fiscalDayStatus = data.fiscalDayStatus;
 
     if (fiscalDayStatus === "FiscalDayClosed") {
       console.log("Fiscal Day is Closed" );
+      
       console.log("Let's Upgrade");
       console.log("...")
       //actual updating of swisbit starts here//
@@ -387,9 +403,15 @@ fs.readFile(filePath, "utf8", (err, data) => {
     } else {
       console.log("To perform this upgrade the Fiscal Day has to be closed");
       console.log("Please Generate Z Report to close the current day, then try again.");
-      console.log("You can close the program ")
+      rl.question('Press Enter to exit...', () => {
+        rl.close();
+      });
     }
-  });
+  }
+})
+
+
+
 
 //end
   } else {

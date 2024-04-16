@@ -4,8 +4,32 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "nexe -i main.js -o myapp-x86.exe -t windows-x86-12.16.2"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "pkg": {
+    "scripts": [
+      "main.js"
+    ],
+    "targets": [
+      "node14-win-x86"
+    ],
+    "assets": [
+      "RevmaxAPI.dll",
+      "RevmaxAPI.tlb",
+      "RevmaxAPI.pdb"
+    ]
+  },
+  "bin": {
+    "x86": "main.js"
+  },
+  "dependencies": {
+    "pkg": "^5.8.1",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "nexe": "^4.0.0-rc.4"
+  }
 }
