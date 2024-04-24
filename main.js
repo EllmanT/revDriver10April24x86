@@ -339,7 +339,7 @@ fs.readFile(configFilePath, "utf8", (err, data) => {
                   const dollarExists = section.includes(
                     "DOLLAR=ZIG|ZiG|ZIG$|ZiG$|zig|Zig|ziG|ZG$"
                   );
-                  const exceptExists=section.includes("EXCEPT=ZIG0.00|ZiG0.00")
+                  const exceptExists=section.includes("EXCEPT=ZiG0.00|ZIG0.00|USD0.00|ZWL0.00|0.00|0|EXE|EX|Ex|Non|NON|Exempt")
 
                   if (!dollarExists && !/LARGEDOLLAR/i.test(section)) {
                     section = section.replace(
